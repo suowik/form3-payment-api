@@ -11,10 +11,12 @@ dependencies {
     compile 'io.vertx:vertx-web-api-contract:3.6.3'
     compile 'io.vertx:vertx-mongo-client:3.6.3'
     compile group: 'io.vavr', name: 'vavr', version: '0.10.0'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
 
 
     testCompile 'io.rest-assured:rest-assured:3.3.0'
     testCompile 'junit:junit:4.12'
+    testCompile "org.testcontainers:testcontainers:1.10.6"
 }
 
 shadowJar {
