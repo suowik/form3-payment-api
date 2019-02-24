@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Payment API
+  description: Payment API for Form3 recrutment task
+  contact:
+    name: Paweł Słowik
+    email: pkiwols@gmail.com
+servers:
+  - url: localhost:8080/api/v1
+paths:
+  /payments:
+    post:
+      description: |
+        Create a new payment
+      operationId: create-payment
+      parameters:
+        - name: request-id
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '201':
+          description: created
+        '400':
+          description: e.g. request header missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: user is not autorized to use this api
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: in case we have interal server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    get:
+      description: |
+        get list of available payments
+      operationId: get-payments
+      parameters:
+        - name: offset
+          in: query
+          description: offset of search query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: limit result of query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: The list of payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payments'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /payments/{id}:
+    patch:
+      description: |
+        get list of available payments
+      operationId: update-payment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Updated the payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payments'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    get:
+      description: |
+        get particular payment
+      operationId: get-payment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: resolved payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
+components:
+  schemas:
+    Payments:
+      type: array
+      items:
+        $ref: '#/components/schemas/Payment'
+    Payment:
+      properties:
+        type:
+          type: string
+          default: Payment
+        id:
+          type: string
+        version:
+          type: integer
+        organisation_id:
+          type: string
+        attributes:
+          $ref: "#/components/schemas/PaymentAttributes"
+    PaymentAttributes:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        end_to_end_reference:
+          type: string
+        numeric_reference:
+          type: number
+        payment_id:
+          type: string
+        payment_purpose:
+          type: string
+        payment_scheme:
+          type: string
+        payment_type:
+          type: string
+        processing_date:
+          type: string
+          example: "2017-01-01"
+          format: date
+          pattern: "YYYY-MM-DD"
+        reference:
+          type: string
+        scheme_payment_sub_type:
+          type: string
+        scheme_payment_type:
+          type: string
+        charges_information:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChargeInfo"
+    ChargeInfo:
+      properties:
+        bearer_code:
+          type: string
+        sender_charges:
+          type: array
+          items:
+            $ref:  "#/components/schemas/SenderCharge"
+    SenderCharge:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+    Errors:
+      type: array
+      items:
+        $ref: "#/components/schemas/Error"
+    Error:
+      properties:
+        reason:
+          type: string
+        description:
+          type: string

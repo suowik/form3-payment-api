@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title:
+  description:
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    name:
+    email:
+    url:
+servers:
+  - url: <host>/api/v1
+paths:
+  /logs:
+    post:
+      description: |
+        Accepts log event for further aggretation and processing
+      operationId: log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogEvent'
+      parameters:
+        - in: header
+          name: X-Instance-ID
+          schema:
+            type: string
+          required: true
+          description: unique id for UK, USA
+      responses:
+        '202':
+          description: log accepted for further processing
+        '400':
+          description: e.g. request header missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: user is not autorized to use this api
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: in case we have interal server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    LogEvent:
+      required:
+        - type
+        - message
+      properties:
+        level:
+          type: string
+          enum: [DEBUG, WARN, INFO, ERROR]
+        message:
+          type: string
+          description: 'stringified JSON object which contains at least 3 fields: type (access, application), identifier of issuer (not decided yet what kind of ID), rest of the message'
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

@@ -1,0 +1,25 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'java'
+}
+
+
+dependencies {
+    compile group: 'io.vertx', name: 'vertx-rx-java2', version: '3.6.3'
+    compile group: 'io.vertx', name: 'vertx-core', version: '3.6.3'
+    compile group: 'io.vertx', name: 'vertx-web', version: '3.6.3'
+    compile 'io.vertx:vertx-web-api-contract:3.6.3'
+    compile 'io.vertx:vertx-mongo-client:3.6.3'
+    compile group: 'io.vavr', name: 'vavr', version: '0.10.0'
+
+
+    testCompile 'io.rest-assured:rest-assured:3.3.0'
+    testCompile 'junit:junit:4.12'
+}
+
+shadowJar {
+    version = 1.0
+    manifest {
+        attributes 'Main-Class': 'api.App'
+    }
+}
