@@ -1,81 +1,233 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title:
-  description:
-  termsOfService: 'http://swagger.io/terms/'
+  title: Payment API
+  description: Payment API for Form3 recrutment task
   contact:
-    name:
-    email:
-    url:
+    name: Paweł Słowik
+    email: pkiwols@gmail.com
 servers:
-  - url: <host>/api/v1
+  - url: localhost:8080/api/v1
 paths:
-  /logs:
+  /payments:
     post:
       description: |
-        Accepts log event for further aggretation and processing
-      operationId: log
+        Create a new payment
+      operationId: create-payment
+      parameters:
+        - name: request-id
+          in: header
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LogEvent'
-      parameters:
-        - in: header
-          name: X-Instance-ID
-          schema:
-            type: string
-          required: true
-          description: unique id for UK, USA
+              $ref: '#/components/schemas/Payment'
       responses:
-        '202':
-          description: log accepted for further processing
+        '201':
+          description: created
         '400':
           description: e.g. request header missing
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Errors'
         '401':
           description: user is not autorized to use this api
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Errors'
         '500':
           description: in case we have interal server
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Errors'
         default:
           description: default response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Errors'
+    get:
+      description: |
+        get list of available payments
+      operationId: get-payments
+      parameters:
+        - name: offset
+          in: query
+          description: offset of search query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: limit result of query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: The list of payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payments'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /payments/{id}:
+    patch:
+      description: |
+        get list of available payments
+      operationId: update-payment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Updated the payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payments'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    get:
+      description: |
+        get particular payment
+      operationId: get-payment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: resolved payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Bad query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Error occured at server side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
 components:
   schemas:
-    LogEvent:
-      required:
-        - type
-        - message
+    Payments:
+      type: array
+      items:
+        $ref: '#/components/schemas/Payment'
+    Payment:
       properties:
-        level:
+        type:
           type: string
-          enum: [DEBUG, WARN, INFO, ERROR]
-        message:
+          default: Payment
+        id:
           type: string
-          description: 'stringified JSON object which contains at least 3 fields: type (access, application), identifier of issuer (not decided yet what kind of ID), rest of the message'
-    Error:
-      required:
-        - code
-        - message
-      properties:
-        code:
+        version:
           type: integer
-          format: int32
-        message:
+        organisation_id:
+          type: string
+        attributes:
+          $ref: "#/components/schemas/PaymentAttributes"
+    PaymentAttributes:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        end_to_end_reference:
+          type: string
+        numeric_reference:
+          type: number
+        payment_id:
+          type: string
+        payment_purpose:
+          type: string
+        payment_scheme:
+          type: string
+        payment_type:
+          type: string
+        processing_date:
+          type: string
+          example: "2017-01-01"
+          format: date
+          pattern: "YYYY-MM-DD"
+        reference:
+          type: string
+        scheme_payment_sub_type:
+          type: string
+        scheme_payment_type:
+          type: string
+        charges_information:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChargeInfo"
+    ChargeInfo:
+      properties:
+        bearer_code:
+          type: string
+        sender_charges:
+          type: array
+          items:
+            $ref:  "#/components/schemas/SenderCharge"
+    SenderCharge:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+    Errors:
+      type: array
+      items:
+        $ref: "#/components/schemas/Error"
+    Error:
+      properties:
+        reason:
+          type: string
+        description:
           type: string
