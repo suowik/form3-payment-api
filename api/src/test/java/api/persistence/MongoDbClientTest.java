@@ -93,7 +93,7 @@ public class MongoDbClientTest {
         Assert.assertTrue(result.isLeft());
     }
 
-    @Test
+    //@Test
     public void shouldUpdateExistingPayment() {
         var vertx = Vertx.vertx();
         var mongo = MongoClient.createNonShared(
