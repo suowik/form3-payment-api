@@ -1,6 +1,7 @@
 package api.modules;
 
 import api.model.Payment;
+import io.restassured.RestAssured;
 import io.vertx.reactivex.core.Vertx;
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
@@ -17,6 +18,7 @@ public class ApplicationE2EModuleTest {
 
     @BeforeClass
     public static void setup() {
+        RestAssured.port = 64321;
         var vertx = Vertx.vertx();
         var application = ApplicationModule.createApplication(vertx,
                 new ApplicationModule.EnvironmentConfig(
@@ -25,7 +27,7 @@ public class ApplicationE2EModuleTest {
                                 mongoTestClient.getMappedPort(27017),
                                 "form3"
                         ),
-                        8080));
+                        64321));
         application.subscribe(server -> System.out.println("up and running"), Throwable::printStackTrace);
     }
 
@@ -60,6 +62,14 @@ public class ApplicationE2EModuleTest {
     public void applicationShouldNotBeAbleToGetPayment() {
         given()
                 .get("/api/v1/payments/anyPaymentId")
+                .then()
+                .statusCode(501);
+    }
+
+    @Test
+    public void applicationShouldNotBeAbleToUpdatePayment() {
+        given()
+                .patch("/api/v1/payments/anyPaymentId")
                 .then()
                 .statusCode(501);
     }
