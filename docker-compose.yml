@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: "mongo:3.4.19-jessie"
+    ports:
+      - 27017
+  api:
+    build: .
+    ports:
+      - 8080:8080
+    links:
+      - db
+    environment:
+      - MONGO_HOST=db
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=form3
+      - SERVER_PORT=8080

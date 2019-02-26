@@ -31,7 +31,8 @@ dependencies {
 
 shadowJar {
     version = 1.0
+    destinationDir = new File("../")
     manifest {
-        attributes 'Main-Class': 'api.App'
+        attributes 'Main-Class': 'api.Main'
     }
 }

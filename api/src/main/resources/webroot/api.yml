@@ -15,7 +15,7 @@ paths:
         Create a new payment
       operationId: create-payment
       parameters:
-        - name: request-id
+        - name: x-request-id
           in: header
           schema:
             type: string
