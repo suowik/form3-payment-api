@@ -9,6 +9,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
@@ -23,14 +26,13 @@ public class CommonHttpResponseHandler {
         handleResponse(200, ctx, input);
     }
 
-
     private static <R> void handleResponse(Integer successStatusCode, RoutingContext ctx, Either<Throwable, R> input) {
         var response = ctx.response();
         input.fold(error -> {
-            error.printStackTrace();
             var statusCodeWithReason = API.Match(error).of(
-                    Case($(instanceOf(Exception.class)), createErrorResponseObject(500, error.getMessage())),
-                    Case($(instanceOf(ValidationException.class)), createErrorResponseObject(400, error.getMessage()))
+                    Case($(instanceOf(ValidationException.class)), createErrorResponseObject(400, ((ValidationException) error).getValidationExceptions().stream().map(Throwable::getMessage).collect(Collectors.toList()))),
+                    Case($(instanceOf(Throwable.class)), createErrorResponseObject(500, ((ValidationException) error).getValidationExceptions().stream().map(Throwable::getMessage).collect(Collectors.toList())))
+                    //Case($(), createErrorResponseObject(500, List.of(error.getMessage())))
             );
             response.setStatusCode(statusCodeWithReason._1)
                     .putHeader("content-type", "application/json")
@@ -44,11 +46,14 @@ public class CommonHttpResponseHandler {
         });
     }
 
-    private static Tuple2<Integer, JsonObject> createErrorResponseObject(Integer statusCode, String message) {
+    private static Tuple2<Integer, JsonObject> createErrorResponseObject(Integer statusCode, List<String> message) {
+        JsonArray reasons = message.stream()
+                .reduce(new JsonArray(),
+                        (array, error) -> array.add(new JsonObject().put("reason", error)),
+                        JsonArray::add);
         return Tuple.of(statusCode, new JsonObject()
                 .put("errors",
-                        new JsonArray()
-                                .add(new JsonObject().put("reason", message))));
+                        reasons));
     }
 
 }
