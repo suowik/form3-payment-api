@@ -2,15 +2,17 @@ package api.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Value
 public class Payment {
-    private final String type;
+    private String type;
     @JsonAlias({"id", "_id"})
-    private final String id;
-    private final Integer version;
-    private final String organisationId;
-    private final PaymentAttributes attributes;
+    private String id;
+    private Integer version;
+    private String organisationId;
+    private PaymentAttributes attributes;
 }

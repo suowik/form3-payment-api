@@ -3,15 +3,13 @@ package api.http;
 import api.exceptions.ValidationException;
 import api.model.Payment;
 import api.utils.Flowables;
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,11 +33,15 @@ public class CreatePaymentHandler implements Handler<RoutingContext> {
                     var payment = e.getBodyAsJson().mapTo(Payment.class);
                     return delegate.apply(payment).toFlowable();
                 }))
+                .map(e -> e.map(c -> new JsonObject().put("paymentId", c)))
                 .subscribe(s -> CommonHttpResponseHandler.handleCreateResponse(event, s),
-                        e -> event.response()
-                                .setStatusCode(500)
-                                .putHeader("content-type", "application/json")
-                                .end()
+                        e -> {
+                            e.printStackTrace();
+                            event.response()
+                                    .setStatusCode(500)
+                                    .putHeader("content-type", "application/json")
+                                    .end();
+                        }
                 );
     }
 
