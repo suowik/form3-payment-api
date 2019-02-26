@@ -3,10 +3,10 @@
 #### Short summary:
 Application is written with usage of Vert.x, RxJava2, Vavr.io and MongoDB as a database.
 I tried to write it in functional style (wherever it makes sense).
-I omitted on purpose some of implementations and tests (I tried to focus on my approach of designing and coding instead of writing fully functinal production-ready application).
+I omitted on purpose some of implementations and tests (I tried to focus on my approach of designing and coding instead of writing fully functional production-ready application).
 
 #### How to run:
-1. You will need docker up and running
+1. You will need: java and docker
 2. `make install` will do the job (it creates a fat jar and boots up the application according to config in `docker-compose.yml`)
 
 When application is up and ready it will bind to port `8080` and expose Swagger docs under `localhost:8080/swagger/`
